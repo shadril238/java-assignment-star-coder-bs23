@@ -34,6 +34,7 @@ public class Task {
     @Column(nullable=true)
     private LocalDateTime updatedAt;
 
+    private Boolean isCompleted = false;
     private Boolean isDeleted = false;
 
     @ManyToOne

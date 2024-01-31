@@ -67,11 +67,26 @@ public class WebSecurityConfig {
                     auth
                             .requestMatchers(HttpMethod.POST, "/api/register").permitAll()
                             .requestMatchers(HttpMethod.POST, "/api/login").permitAll()
-                            .requestMatchers(HttpMethod.GET, "/api/users").hasAuthority("ADMIN")
-                            .requestMatchers(HttpMethod.GET, "/api/users/**").hasAuthority("ADMIN")
-                            .requestMatchers(HttpMethod.POST, "/api/user/profile").permitAll()
-                            .requestMatchers(HttpMethod.PUT, "/api/user/update").permitAll()
-                            .requestMatchers(HttpMethod.DELETE, "/api/user/delete/**").hasAuthority("ADMIN")
+                            // User
+                            .requestMatchers(HttpMethod.GET, "/api/users").hasAuthority(Role.ADMIN.name())
+                            .requestMatchers(HttpMethod.GET, "/api/users/**").hasAuthority(Role.ADMIN.name())
+                            .requestMatchers(HttpMethod.POST, "/api/user/profile").hasAnyAuthority(Role.ADMIN.name(), Role.USER.name())
+                            .requestMatchers(HttpMethod.PUT, "/api/user/update").hasAnyAuthority(Role.ADMIN.name(), Role.USER.name())
+                            .requestMatchers(HttpMethod.DELETE, "/api/user/delete/**").hasAuthority(Role.ADMIN.name())
+                            // Task
+                            .requestMatchers(HttpMethod.POST, "/api/tasks/").hasAnyAuthority(Role.USER.name())
+                            .requestMatchers(HttpMethod.GET, "/api/tasks/").hasAnyAuthority(Role.ADMIN.name(), Role.USER.name())
+                            .requestMatchers(HttpMethod.PUT, "/api/tasks/{taskId}").hasAnyAuthority(Role.USER.name())
+                            .requestMatchers(HttpMethod.DELETE, "/api/tasks/{taskId}").hasAnyAuthority(Role.USER.name())
+                            .requestMatchers(HttpMethod.GET, "/api/tasks/user/{userId}").hasAnyAuthority(Role.ADMIN.name(), Role.USER.name())
+                            .requestMatchers(HttpMethod.GET, "/api/tasks/{taskId}").hasAnyAuthority(Role.ADMIN.name(), Role.USER.name())
+                            .requestMatchers(HttpMethod.POST, "/api/tasks/{taskId}/complete").hasAnyAuthority(Role.USER.name())
+                            .requestMatchers(HttpMethod.POST, "/api/tasks/{taskId}/incomplete").hasAnyAuthority(Role.USER.name())
+                            .requestMatchers(HttpMethod.GET, "/api/tasks/user/{userId}/completed").hasAnyAuthority(Role.USER.name())
+                            .requestMatchers(HttpMethod.GET, "/api/tasks/user/{userId}/uncompleted").hasAnyAuthority(Role.USER.name())
+                            .requestMatchers(HttpMethod.GET, "/api/tasks/user/{userId}/sort/createdAt/asc").hasAnyAuthority(Role.USER.name())
+                            .requestMatchers(HttpMethod.GET, "/api/tasks/user/{userId}/sort/createdAt/desc").hasAnyAuthority(Role.USER.name())
+
                             .anyRequest().authenticated();
                 })
                 .addFilter(new CustomAuthenticationFilter(authenticationManager))

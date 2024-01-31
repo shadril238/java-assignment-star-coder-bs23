@@ -34,6 +34,7 @@ public class TaskDto {
 
     private LocalDateTime updatedAt;
 
+    private Boolean isCompleted = false;
     private Boolean isDeleted = false;
 
     private Long userId;
