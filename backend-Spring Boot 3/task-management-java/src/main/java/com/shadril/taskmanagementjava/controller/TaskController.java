@@ -25,8 +25,8 @@ public class TaskController {
     public ResponseEntity<?> createTask(@Valid @RequestBody TaskDto taskDto) {
         try {
             log.info("Creating task for user ID: {}", taskDto.getUserId());
-            taskService.createTask(taskDto);
-            return new ResponseEntity<>(new ResponseMessageDto("Task created successfully", HttpStatus.CREATED), HttpStatus.CREATED);
+            TaskDto createdTask = taskService.createTask(taskDto);
+            return new ResponseEntity<>(createdTask, HttpStatus.CREATED);
         } catch (CustomException e) {
             log.error("Error creating task: {}", e.getMessage());
             return new ResponseEntity<>(new ResponseMessageDto(e.getMessage(), e.getStatus()), e.getStatus());
@@ -50,7 +50,7 @@ public class TaskController {
         try {
             log.info("Updating task ID: {}", taskId);
             TaskDto updatedTask = taskService.updateTask(taskId, taskDto);
-            return ResponseEntity.ok(updatedTask);
+            return new ResponseEntity<>(updatedTask, HttpStatus.OK);
         } catch (CustomException e) {
             log.error("Error updating task ID: {}", taskId, e);
             return new ResponseEntity<>(new ResponseMessageDto(e.getMessage(), e.getStatus()), e.getStatus());
@@ -129,11 +129,11 @@ public class TaskController {
         }
     }
 
-    @GetMapping("/user/{userId}/uncompleted")
+    @GetMapping("/user/{userId}/incompleted")
     public ResponseEntity<?> getAllUncompletedTasks(@PathVariable Long userId) {
         try {
             log.info("Fetching all uncompleted tasks for user ID: {}", userId);
-            List<TaskDto> tasks = taskService.getAllUncompletedTasks(userId);
+            List<TaskDto> tasks = taskService.getAllIncompletedTasks(userId);
             return ResponseEntity.ok(tasks);
         } catch (CustomException e) {
             log.error("Error fetching uncompleted tasks for user ID: {}", userId, e);
