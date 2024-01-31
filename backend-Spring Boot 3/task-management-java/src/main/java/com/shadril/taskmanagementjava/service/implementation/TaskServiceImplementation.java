@@ -77,6 +77,7 @@ public class TaskServiceImplementation implements TaskService {
             Task updatedTask = taskRepository.save(task);
             log.info("Task updated successfully with ID: {}", updatedTask.getId());
 
+            // Convert the updated task back to DTO and return
             return modelMapper.map(updatedTask, TaskDto.class);
         } catch (Exception e) {
             log.error("Error occurred while updating task: {}", e.getMessage());
