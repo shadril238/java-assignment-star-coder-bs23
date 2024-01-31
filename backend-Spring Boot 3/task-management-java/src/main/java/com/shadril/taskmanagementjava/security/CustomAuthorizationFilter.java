@@ -46,7 +46,7 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
             String user = JwtUtils.hasTokenExpired(token) ? null : JwtUtils.extractUser(token);
 
             if (user != null) {
-                List<String> userRoles = Collections.singletonList(JwtUtils.extractUser(token));
+                List<String> userRoles = JwtUtils.extractUserRoles(token);
                 List<GrantedAuthority> authorities = new ArrayList<>();
                 for (String role : userRoles) {
                     authorities.add(new SimpleGrantedAuthority(role));

@@ -3,6 +3,7 @@ package com.shadril.taskmanagementjava.service.implementation;
 import com.shadril.taskmanagementjava.dto.ResponseMessageDto;
 import com.shadril.taskmanagementjava.dto.UserDto;
 import com.shadril.taskmanagementjava.entity.User;
+import com.shadril.taskmanagementjava.enums.Role;
 import com.shadril.taskmanagementjava.exception.CustomException;
 import com.shadril.taskmanagementjava.repository.UserRepository;
 import com.shadril.taskmanagementjava.service.UserService;
@@ -12,13 +13,18 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -38,11 +44,11 @@ public class UserServiceImplementation implements UserService, UserDetailsServic
     public UserDto getUserByUsername(String username) throws CustomException {
         User userEntity = userRepository.findByUsername(username).orElse(null);
         if (userEntity == null){
+            log.error("User not found");
             throw new CustomException(new ResponseMessageDto("User not found", HttpStatus.NOT_FOUND), HttpStatus.NOT_FOUND);
         }
-        UserDto returnValue = new UserDto();
-        BeanUtils.copyProperties(userEntity, returnValue);
-        return returnValue;
+        log.info("User found with username: {}", username);
+        return modelMapper.map(userEntity, UserDto.class);
     }
 
 
@@ -50,83 +56,68 @@ public class UserServiceImplementation implements UserService, UserDetailsServic
     public UserDto getUserByEmail(String email) throws CustomException{
         User userEntity = userRepository.findByEmail(email).orElse(null);
         if (userEntity == null){
+            log.error("User not found");
             throw new CustomException(new ResponseMessageDto("User not found", HttpStatus.NOT_FOUND), HttpStatus.NOT_FOUND);
         }
-        UserDto returnValue = new UserDto();
-        BeanUtils.copyProperties(userEntity, returnValue);
-        return returnValue;
+        log.info("User found with email: {}", email);
+        return modelMapper.map(userEntity, UserDto.class);
     }
 
     @Override
     public UserDto getUserById(Long userId) throws CustomException {
-        return null;
+        String errorMessage = "No user found with id: " + userId;
+        User userEntity = userRepository
+                .findById(userId)
+                .orElseThrow(() -> new CustomException(new ResponseMessageDto(errorMessage, HttpStatus.BAD_REQUEST), HttpStatus.BAD_REQUEST));
+        log.info("User found with id: {}", userId);
+        return new ModelMapper().map(userEntity, UserDto.class);
     }
 
     @Override
     public UserDto registerUser(UserDto userDto) throws CustomException {
         if(userRepository.findByUsername(userDto.getUsername()).isPresent()){
+            log.error("Username already exists");
             throw new CustomException(new ResponseMessageDto("Username already exists", HttpStatus.BAD_REQUEST), HttpStatus.BAD_REQUEST);
         }
+        log.info("Username is available");
         if(userRepository.findByEmail(userDto.getEmail()).isPresent()){
+            log.error("Email already exists");
             throw new CustomException(new ResponseMessageDto("Email already exists", HttpStatus.BAD_REQUEST), HttpStatus.BAD_REQUEST);
         }
+        log.info("Email is available");
         User userEntity = modelMapper.map(userDto, User.class);
         userEntity.setPassword(bCryptPasswordEncoder.encode(userDto.getPassword()));
         User storedUserDetails = userRepository.save(userEntity);
-
+        log.info("User registered successfully");
         return modelMapper.map(storedUserDetails, UserDto.class);
     }
-
     @Override
-    public UserDto updateUser(UserDto userDto) throws CustomException {
-        if (userDto.getId() == null) {
-            throw new CustomException(new ResponseMessageDto("User id is required", HttpStatus.BAD_REQUEST), HttpStatus.BAD_REQUEST);
-        }
-
-        User existingUser = userRepository.findById(userDto.getId())
-                .orElseThrow(() -> new CustomException(new ResponseMessageDto("User not found", HttpStatus.NOT_FOUND), HttpStatus.NOT_FOUND));
-
-        Optional<User> existingUserByUsername = userRepository.findByUsername(userDto.getUsername());
-
-        if (existingUserByUsername.isPresent() && !existingUserByUsername.get().getId().equals(userDto.getId())) {
-            throw new CustomException(new ResponseMessageDto("Username already taken", HttpStatus.BAD_REQUEST), HttpStatus.BAD_REQUEST);
-        }
-
-        Optional<User> existingUserByEmail = userRepository.findByEmail(userDto.getEmail());
-        if (existingUserByEmail.isPresent() && !existingUserByEmail.get().getId().equals(userDto.getId())) {
-            throw new CustomException(new ResponseMessageDto("Email already taken", HttpStatus.BAD_REQUEST), HttpStatus.BAD_REQUEST);
-        }
-
+    public List<UserDto> getAllUsers() throws CustomException {
+        List<User> userList;
         try {
-            modelMapper.typeMap(UserDto.class, User.class).addMappings(mapper -> {
-                mapper.skip(User::setId);
-                mapper.skip(User::setPassword);
-            });
-            modelMapper.map(userDto, existingUser);
-
-            if (userDto.getPassword() != null && !userDto.getPassword().isEmpty()) {
-                existingUser.setPassword(bCryptPasswordEncoder.encode(userDto.getPassword()));
-            }
-            User updatedUser = userRepository.save(existingUser);
-
-            UserDto returnValue = modelMapper.map(updatedUser, UserDto.class);
-            returnValue.setPassword(null);
-            return returnValue;
-        } catch (Exception e) {
-            log.error("Error updating user: ", e);
-            throw new CustomException(new ResponseMessageDto("Error updating user", HttpStatus.INTERNAL_SERVER_ERROR), HttpStatus.INTERNAL_SERVER_ERROR);
+            userList = userRepository.findAll();
+        } catch (Exception ex) {
+            log.error("Error occurred while retrieving users: {}", ex.getMessage());
+            throw new CustomException(new ResponseMessageDto("Error occurred while retrieving users", HttpStatus.INTERNAL_SERVER_ERROR), HttpStatus.INTERNAL_SERVER_ERROR);
         }
-
-    }
-
-
-    @Override
-    public void deleteUser(Long userId) throws CustomException {
-
+        if (userList.isEmpty()) {
+            log.error("No users found in the database.");
+            throw new CustomException(new ResponseMessageDto("No users found", HttpStatus.NOT_FOUND), HttpStatus.NOT_FOUND);
+        }
+        log.info("Processing {} users", userList.size());
+        return userList.stream()
+                .filter(user -> user.getRole() != null && user.getRole().equals(Role.USER))
+                .map(user -> modelMapper.map(user, UserDto.class))
+                .collect(Collectors.toList());
     }
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        return null;
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException(String.format("User with username %s not found", username)));
+
+        return new org.springframework.security.core.userdetails.User(user.getUsername(),user.getPassword(),
+                true,true,true,true,new ArrayList<>());
+
     }
 }

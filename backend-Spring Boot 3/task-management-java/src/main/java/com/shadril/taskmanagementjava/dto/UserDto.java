@@ -7,6 +7,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Data
@@ -36,6 +37,9 @@ public class UserDto {
     @NotBlank(message = "Last name is required")
     @Size(max = 15, message = "Last name can't exceed 15 characters")
     private String lastname;
+
+    @NotNull(message = "Birthdate is required")
+    private LocalDate birthdate;
 
     @NotNull(message = "Role is required")
     private Role role;

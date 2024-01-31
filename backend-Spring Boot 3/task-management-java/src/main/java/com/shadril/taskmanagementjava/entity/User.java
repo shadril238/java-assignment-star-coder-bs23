@@ -4,6 +4,8 @@ import com.shadril.taskmanagementjava.enums.Role;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import lombok.*;
+
+import java.time.LocalDate;
 import java.util.List;
 
 @Data
@@ -32,6 +34,9 @@ public class User {
 
     @Column(nullable=false, length=15)
     private String lastname;
+
+    @Column(nullable=false)
+    private LocalDate birthdate;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable=false)

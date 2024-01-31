@@ -1,7 +1,9 @@
 package com.shadril.taskmanagementjava.security;
 
+import com.shadril.taskmanagementjava.enums.Role;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -63,7 +65,14 @@ public class WebSecurityConfig {
                 .sessionManagement(session->session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth->{
                     auth
-                            .anyRequest().permitAll();
+                            .requestMatchers(HttpMethod.POST, "/api/register").permitAll()
+                            .requestMatchers(HttpMethod.POST, "/api/login").permitAll()
+                            .requestMatchers(HttpMethod.GET, "/api/users").hasAuthority("ADMIN")
+                            .requestMatchers(HttpMethod.GET, "/api/users/**").hasAuthority("ADMIN")
+                            .requestMatchers(HttpMethod.POST, "/api/user/profile").permitAll()
+                            .requestMatchers(HttpMethod.PUT, "/api/user/update").permitAll()
+                            .requestMatchers(HttpMethod.DELETE, "/api/user/delete/**").hasAuthority("ADMIN")
+                            .anyRequest().authenticated();
                 })
                 .addFilter(new CustomAuthenticationFilter(authenticationManager))
                 .addFilterBefore(new CustomAuthorizationFilter(), UsernamePasswordAuthenticationFilter.class)

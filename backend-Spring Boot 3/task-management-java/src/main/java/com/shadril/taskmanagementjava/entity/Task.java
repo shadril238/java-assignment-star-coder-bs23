@@ -4,6 +4,8 @@ import com.shadril.taskmanagementjava.enums.TaskStatus;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDateTime;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -25,6 +27,12 @@ public class Task {
     @Enumerated(EnumType.STRING)
     @Column(nullable=false)
     private TaskStatus status;
+
+    @Column(nullable=false)
+    private LocalDateTime createdAt = LocalDateTime.now();
+
+    @Column(nullable=true)
+    private LocalDateTime updatedAt;
 
     private Boolean isDeleted = false;
 

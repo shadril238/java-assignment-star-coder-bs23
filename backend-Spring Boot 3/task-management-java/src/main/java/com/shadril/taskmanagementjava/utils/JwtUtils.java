@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 
 import java.security.SecureRandom;
 import java.util.Date;
+import java.util.List;
 import java.util.Random;
 
 @Slf4j
@@ -23,30 +24,27 @@ public class JwtUtils {
         return tokenExpirationDate.before(today);
     }
 
-    public static String generateToken(String id){
+    public static String generateToken(String username, List<String> roles){
         return Jwts.builder()
-                .setSubject(id)
+                .setSubject(username)
+                .claim("roles", roles)
                 .setExpiration(new Date(System.currentTimeMillis()+AppConstant.EXPIRATION_TIME))
-                .signWith(SignatureAlgorithm.HS256,AppConstant.TOKEN_SECRET)
+                .signWith(SignatureAlgorithm.HS256, AppConstant.TOKEN_SECRET)
                 .compact();
     }
-
-    public static String generateUserID(int length){
-        return generateRandomString(length);
-    }
-
-    public static String generateBookID(int length){
-        return generateRandomString(length);
-    }
-
     private static String generateRandomString(int length){
         StringBuilder returnValue = new StringBuilder(length);
-        for (int i = 0;i<length;i++)
+        for (int i = 0; i < length; i++)
             returnValue.append(ALPHABET.charAt(RANDOM.nextInt(ALPHABET.length())));
         return new String(returnValue);
     }
 
     public static String extractUser(String token) {
         return Jwts.parser().setSigningKey(AppConstant.TOKEN_SECRET).parseClaimsJws(token).getBody().getSubject();
+    }
+
+    public static List<String> extractUserRoles(String token) {
+        Claims claims = Jwts.parser().setSigningKey(AppConstant.TOKEN_SECRET).parseClaimsJws(token).getBody();
+        return  (List<String>) claims.get("roles");
     }
 }
