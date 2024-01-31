@@ -14,7 +14,7 @@ public interface TaskService {
     void completeTask(Long taskId) throws CustomException;
     void incompleteTask(Long taskId) throws CustomException;
     List<TaskDto> getAllCompletedTasks(Long userId) throws CustomException;
-    List<TaskDto> getAllUncompletedTasks(Long userId) throws CustomException;
+    List<TaskDto> getAllIncompletedTasks(Long userId) throws CustomException;
     List<TaskDto> getAllTasks() throws CustomException;
     List<TaskDto> sortTasksByDateCreatedAsc(Long userId) throws CustomException;
     List<TaskDto> sortTasksByDateCreatedDesc(Long userId) throws CustomException;

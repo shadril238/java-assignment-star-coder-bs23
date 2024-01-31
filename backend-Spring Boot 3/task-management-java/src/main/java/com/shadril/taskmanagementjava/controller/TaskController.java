@@ -129,11 +129,11 @@ public class TaskController {
         }
     }
 
-    @GetMapping("/user/{userId}/uncompleted")
+    @GetMapping("/user/{userId}/incompleted")
     public ResponseEntity<?> getAllUncompletedTasks(@PathVariable Long userId) {
         try {
             log.info("Fetching all uncompleted tasks for user ID: {}", userId);
-            List<TaskDto> tasks = taskService.getAllUncompletedTasks(userId);
+            List<TaskDto> tasks = taskService.getAllIncompletedTasks(userId);
             return ResponseEntity.ok(tasks);
         } catch (CustomException e) {
             log.error("Error fetching uncompleted tasks for user ID: {}", userId, e);

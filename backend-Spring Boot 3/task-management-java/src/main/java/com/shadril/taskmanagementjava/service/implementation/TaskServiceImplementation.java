@@ -4,6 +4,7 @@ import com.shadril.taskmanagementjava.dto.ResponseMessageDto;
 import com.shadril.taskmanagementjava.dto.TaskDto;
 import com.shadril.taskmanagementjava.entity.Task;
 import com.shadril.taskmanagementjava.entity.User;
+import com.shadril.taskmanagementjava.enums.TaskStatus;
 import com.shadril.taskmanagementjava.exception.CustomException;
 import com.shadril.taskmanagementjava.repository.TaskRepository;
 import com.shadril.taskmanagementjava.repository.UserRepository;
@@ -57,21 +58,32 @@ public class TaskServiceImplementation implements TaskService {
         try {
             Task task = taskRepository.findByIdAndIsDeletedFalse(taskId)
                     .orElseThrow(() -> new CustomException(new ResponseMessageDto("Task not found", HttpStatus.NOT_FOUND), HttpStatus.NOT_FOUND));
+            log.info("Task found with ID: {}", taskId);
 
-            modelMapper.typeMap(TaskDto.class, Task.class).addMappings(mapper -> mapper.skip(Task::setId));
-            modelMapper.map(taskDto, task);
+            if (taskDto.getUserId() != null) {
+                User user = userRepository.findByIdAndIsDeletedFalse(taskDto.getUserId())
+                        .orElseThrow(() -> new CustomException(new ResponseMessageDto("User not found", HttpStatus.NOT_FOUND), HttpStatus.NOT_FOUND));
+                task.setUser(user);
+            }
+
+            if (taskDto.getTitle() != null) task.setTitle(taskDto.getTitle());
+            if (taskDto.getDescription() != null) task.setDescription(taskDto.getDescription());
+            if (taskDto.getStatus() != null) task.setStatus(taskDto.getStatus());
+            if (taskDto.getIsCompleted() != null) task.setIsCompleted(taskDto.getIsCompleted());
 
             task.setUpdatedAt(LocalDateTime.now());
 
             Task updatedTask = taskRepository.save(task);
-            log.info("Task updated successfully with ID: {}", taskId);
+            log.info("Task updated successfully with ID: {}", updatedTask.getId());
 
+            // Convert the updated task back to DTO and return
             return modelMapper.map(updatedTask, TaskDto.class);
         } catch (Exception e) {
             log.error("Error occurred while updating task: {}", e.getMessage());
             throw new CustomException(new ResponseMessageDto("Error occurred while updating task", HttpStatus.INTERNAL_SERVER_ERROR), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
 
     @Override
     public void deleteTask(Long taskId) throws CustomException {
@@ -114,6 +126,7 @@ public class TaskServiceImplementation implements TaskService {
         Task task = taskRepository.findByIdAndIsDeletedFalse(taskId)
                 .orElseThrow(() -> new CustomException(new ResponseMessageDto("Task not found", HttpStatus.NOT_FOUND), HttpStatus.NOT_FOUND));
         task.setIsCompleted(true);
+        task.setStatus(TaskStatus.COMPLETED);
         task.setUpdatedAt(LocalDateTime.now());
         taskRepository.save(task);
     }
@@ -123,6 +136,7 @@ public class TaskServiceImplementation implements TaskService {
         Task task = taskRepository.findByIdAndIsDeletedFalse(taskId)
                 .orElseThrow(() -> new CustomException(new ResponseMessageDto("Task not found", HttpStatus.NOT_FOUND), HttpStatus.NOT_FOUND));
         task.setIsCompleted(false);
+        task.setStatus(TaskStatus.TODO);
         task.setUpdatedAt(LocalDateTime.now());
         taskRepository.save(task);
     }
@@ -137,7 +151,7 @@ public class TaskServiceImplementation implements TaskService {
     }
 
     @Override
-    public List<TaskDto> getAllUncompletedTasks(Long userId) {
+    public List<TaskDto> getAllIncompletedTasks(Long userId) {
         List<Task> tasks = taskRepository.findAllByUserIdAndIsCompletedFalseAndIsDeletedFalse(userId);
         return tasks.stream()
                 .map(task -> modelMapper.map(task, TaskDto.class))
