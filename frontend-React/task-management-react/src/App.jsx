@@ -5,6 +5,7 @@ import { Route, Routes } from "react-router-dom";
 import RegistrationPage from "./pages/registration-page/registration.page";
 import LoginPage from "./pages/login-page/login.page";
 import TaskPage from "./pages/task-page/task.page";
+import Authenticate from "./Authenticate";
 
 export const UserContext = createContext();
 
@@ -24,7 +25,14 @@ function App() {
         <Route path="/register" element={<RegistrationPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="*" element={<h1>404 - Not Found</h1>} />
-        <Route path="/" element={<TaskPage />} />
+
+        <Route element={<Authenticate requiredRole="USER" />}>
+          <Route path="/tasks" element={<TaskPage />} />
+        </Route>
+
+        <Route element={<Authenticate requiredRole="ADMIN" />}>
+          <Route path="/tasks" element={<TaskPage />} />
+        </Route>
       </Routes>
     </UserContext.Provider>
   );

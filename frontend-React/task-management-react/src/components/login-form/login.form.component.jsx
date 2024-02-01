@@ -24,7 +24,7 @@ const LoginFormComponent = () => {
       const response = await axiosInstance.post("/login", loginData);
       localStorage.setItem("token", response.data.token); // Save token to localStorage
       localStorage.setItem("role", response.data.role); // Save role to localStorage
-      navigate("/dashboard");
+      navigate("/tasks");
     } catch (error) {
       console.error("Login Error:", error.response?.data || error.message);
     }
