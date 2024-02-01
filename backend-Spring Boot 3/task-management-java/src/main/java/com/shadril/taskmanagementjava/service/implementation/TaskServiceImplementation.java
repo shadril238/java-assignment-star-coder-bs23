@@ -42,6 +42,7 @@ public class TaskServiceImplementation implements TaskService {
             Task task = modelMapper.map(taskDto, Task.class);
             task.setUser(user);
             task.setCreatedAt(LocalDateTime.now());
+            task.setStatus(TaskStatus.TODO);
             task.setIsCompleted(false);
             task.setIsDeleted(false);
             Task savedTask = taskRepository.save(task);

@@ -26,7 +26,6 @@ public class TaskDto {
     @Size(max = 250, message = "Description can't exceed 250 characters")
     private String description;
 
-    @NotNull(message = "Status is required")
     private TaskStatus status;
 
     @NotNull
