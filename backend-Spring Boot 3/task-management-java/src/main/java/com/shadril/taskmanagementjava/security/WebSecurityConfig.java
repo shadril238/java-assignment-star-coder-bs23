@@ -73,9 +73,9 @@ public class WebSecurityConfig {
                             .requestMatchers(HttpMethod.POST, "/api/user/profile").hasAnyAuthority(Role.ADMIN.name(), Role.USER.name())
                             .requestMatchers(HttpMethod.PUT, "/api/user/update").hasAnyAuthority(Role.ADMIN.name(), Role.USER.name())
                             // Task
-                            .requestMatchers(HttpMethod.POST, "/api/tasks/").permitAll()
+                            .requestMatchers(HttpMethod.POST, "/api/tasks/").hasAnyAuthority(Role.USER.name(), Role.ADMIN.name())
                             .requestMatchers(HttpMethod.GET, "/api/tasks/").hasAuthority(Role.ADMIN.name())
-                            .requestMatchers(HttpMethod.PUT, "/api/tasks/{taskId}").hasAuthority(Role.USER.name())
+                            .requestMatchers(HttpMethod.PUT, "/api/tasks/{taskId}").hasAnyAuthority(Role.USER.name(), Role.ADMIN.name())
                             .requestMatchers(HttpMethod.DELETE, "/api/tasks/{taskId}").hasAnyAuthority(Role.USER.name())
                             .requestMatchers(HttpMethod.GET, "/api/tasks/user/{userId}").hasAnyAuthority(Role.ADMIN.name(), Role.USER.name())
                             .requestMatchers(HttpMethod.GET, "/api/tasks/{taskId}").hasAnyAuthority(Role.ADMIN.name(), Role.USER.name())
