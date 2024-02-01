@@ -1,0 +1,46 @@
+.home-container {
+  background-color: #f2f2f2;
+  height: 100vh;
+  padding: 20px;
+  text-align: center;
+}
+
+.header {
+  margin-bottom: 20px;
+}
+
+.add-task-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: center;
+}
+
+.task-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.task-card {
+  background-color: white;
+  border: 1px solid #ccc;
+}
+
+.task-content {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 10px;
+}
+
+.description {
+  margin-top: 10px;
+  color: #555;
+}
+
+.icons {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 10px;
+}

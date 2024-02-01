@@ -1,66 +1,36 @@
-// TaskTableComponent.jsx
 import React from "react";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Paper,
-  IconButton,
-  TextField,
-  Box,
-} from "@mui/material";
-import { Edit as EditIcon, Delete as DeleteIcon } from "@mui/icons-material";
+import { Box, Card, CardContent, Typography, IconButton } from "@mui/material";
+import EditIcon from "@mui/icons-material/Edit";
+import DeleteIcon from "@mui/icons-material/Delete";
 
-const TaskTableComponent = ({ tasks, onDelete, onUpdate }) => {
+const TaskTableComponent = ({ tasks, handleEditTask, handleDeleteTask }) => {
   return (
-    <TableContainer component={Paper}>
-      <Box
-        display="flex"
-        justifyContent="space-between"
-        alignItems="center"
-        p={2}
-      >
-        <TextField label="Search Tasks" variant="outlined" size="small" />
-
-        <IconButton color="primary" aria-label="add task">
-          {/* Icon or Button for adding task */}
-        </IconButton>
-      </Box>
-
-      <Table aria-label="simple table">
-        <TableHead>
-          <TableRow>
-            <TableCell>Task</TableCell>
-            <TableCell align="right">Description</TableCell>
-            <TableCell align="right">Actions</TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {tasks.map((task) => (
-            <TableRow key={task.id}>
-              <TableCell component="th" scope="row">
-                {task.name}
-              </TableCell>
-              <TableCell align="right">{task.description}</TableCell>
-              <TableCell align="right">
-                <IconButton aria-label="edit" onClick={() => onUpdate(task)}>
-                  <EditIcon />
-                </IconButton>
-                <IconButton
-                  aria-label="delete"
-                  onClick={() => onDelete(task.id)}
-                >
-                  <DeleteIcon />
-                </IconButton>
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </TableContainer>
+    <Box className="task-list">
+      {tasks.map((task) => (
+        <Card key={task.id} className="task-card">
+          <CardContent>
+            <Typography variant="h5" gutterBottom>
+              {task.title}
+            </Typography>
+            <Typography variant="body2">{task.description}</Typography>
+            <Box display="flex" justifyContent="flex-end">
+              <IconButton
+                aria-label="edit"
+                onClick={() => handleEditTask(task)}
+              >
+                <EditIcon />
+              </IconButton>
+              <IconButton
+                aria-label="delete"
+                onClick={() => handleDeleteTask(task.id)}
+              >
+                <DeleteIcon />
+              </IconButton>
+            </Box>
+          </CardContent>
+        </Card>
+      ))}
+    </Box>
   );
 };
 

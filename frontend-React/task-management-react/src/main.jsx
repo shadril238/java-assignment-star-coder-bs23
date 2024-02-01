@@ -3,7 +3,9 @@ import { BrowserRouter } from "react-router-dom";
 import App from "./App.jsx";
 import "./main.css";
 
-ReactDOM.createRoot(document.getElementById("root")).render(
+const root = ReactDOM.createRoot(document.getElementById("root"));
+
+root.render(
   <BrowserRouter>
     <App />
   </BrowserRouter>
