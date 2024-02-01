@@ -37,7 +37,6 @@ public class UserServiceImplementation implements UserService, UserDetailsServic
     @Autowired
     private ModelMapper modelMapper;
 
-
     @Override
     public UserDto getUserByUsername(String username) throws CustomException {
         User userEntity = userRepository.findByUsername(username).orElse(null);
@@ -48,7 +47,6 @@ public class UserServiceImplementation implements UserService, UserDetailsServic
         log.info("User found with username: {}", username);
         return modelMapper.map(userEntity, UserDto.class);
     }
-
 
     @Override
     public UserDto getUserByEmail(String email) throws CustomException{
