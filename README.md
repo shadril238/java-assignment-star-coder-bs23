@@ -8,8 +8,6 @@ For detailed API documentation, you can visit [API Documentation](https://docume
 
 ## Getting Started
 
-## Getting Started
-
 These instructions will get you a copy of the project up and running on your local machine for development and testing purposes.
 
 ### Prerequisites
@@ -31,7 +29,7 @@ What things you need to install the software:
 ### Backend (Spring Boot 3)
 1. Navigate to the backend directory:
    ```bash
-   cd java-assignment-star-coder-bs23/backend
+   cd java-assignment-star-coder-bs23/backend-Spring Boot 3
 3. Install the Maven dependencies:
    ```bash
    mvn clean install
@@ -46,7 +44,7 @@ What things you need to install the software:
 ### Frontend (React JS)
 1. Navigate to the frontend directory from the root of the project:
    ```bash
-   cd java-assignment-star-coder-bs23/frontend
+   cd java-assignment-star-coder-bs23/frontend-React
 3. Install the npm packages:
    ```bash
    npm install
